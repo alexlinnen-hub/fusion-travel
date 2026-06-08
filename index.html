@@ -587,7 +587,10 @@ async function lookupBooking() {
   try {
     const url = `https://n8n.processunlocked.com/webhook/travel-lookup?booking_ref=${encodeURIComponent(ref)}&pin=${encodeURIComponent(pin)}`;
     const response = await fetch(url);
-    const data = await response.json();
+    const text = await response.text();
+    let data;
+    try { data = JSON.parse(text); } catch(e) { throw new Error('Invalid response from server. Please try again.'); }
+    if (Array.isArray(data)) data = data[0];
 
     if (!data.found) {
       throw new Error('Booking reference not found. Please check and try again.');
